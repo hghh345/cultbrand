@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cult Brand Builder</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #11100f;
+      color: #fff5df;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .2;
+      z-index: 999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input, textarea { font: inherit; }
+
+    .portal-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255, 88, 215, .9), transparent 26%),
+        radial-gradient(circle at 80% 15%, rgba(0, 157, 255, .75), transparent 28%),
+        radial-gradient(circle at 55% 45%, rgba(255, 118, 20, .85), transparent 32%),
+        radial-gradient(circle at 20% 75%, rgba(40, 228, 111, .65), transparent 25%),
+        linear-gradient(135deg, #23112d 0%, #0d0a14 50%, #061d32 100%);
+      filter: saturate(1.35);
+      animation: breathe 12s ease-in-out infinite alternate;
+    }
+
+    .portal-bg::after {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      background: conic-gradient(from 110deg, rgba(255, 230, 80, .3), rgba(255, 44, 166, .2), rgba(66, 214, 255, .25), rgba(255, 230, 80, .3));
+      filter: blur(70px);
+      animation: spin 28s linear infinite;
+      opacity: .55;
+    }
+
+    @keyframes breathe {
+      from { transform: scale(1); filter: saturate(1.25) hue-rotate(0deg); }
+      to { transform: scale(1.08); filter: saturate(1.55) hue-rotate(14deg); }
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes floaty { 50% { transform: translateY(-18px) rotate(4deg); } }
+    @keyframes glitch {
+      0%, 100% { text-shadow: 3px 0 #ff48cf, -3px 0 #00d9ff; }
+      50% { text-shadow: -4px 0 #ffe24d, 4px 0 #ff5c00; }
+    }
+    @keyframes shimmer { to { background-position: 200% center; } }
+
+    .ticker {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 20;
+      overflow: hidden;
+      background: #fff5df;
+      color: #11100f;
+      border-bottom: 3px solid #11100f;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .8rem;
+      white-space: nowrap;
+    }
+
+    .ticker span {
+      display: inline-block;
+      padding: .55rem 0;
+      animation: marquee 24s linear infinite;
+    }
+    @keyframes marquee { to { transform: translateX(-50%); } }
+
+    .symbols {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .symbol {
+      position: absolute;
+      pointer-events: auto;
+      user-select: none;
+      font-size: clamp(1.4rem, 3vw, 3rem);
+      filter: drop-shadow(0 0 12px rgba(255,255,255,.35));
+      animation: floaty 6s ease-in-out infinite;
+      opacity: .82;
+    }
+    .symbol:nth-child(1) { top: 15%; left: 8%; animation-delay: -1s; }
+    .symbol:nth-child(2) { top: 25%; right: 10%; animation-delay: -3s; }
+    .symbol:nth-child(3) { bottom: 24%; left: 6%; animation-delay: -2s; }
+    .symbol:nth-child(4) { bottom: 12%; right: 8%; animation-delay: -4s; }
+    .symbol:nth-child(5) { top: 58%; right: 16%; animation-delay: -5s; }
+
+    .symbol::after {
+      content: attr(data-secret);
+      position: absolute;
+      left: 50%;
+      top: 120%;
+      transform: translateX(-50%) scale(.9);
+      width: max-content;
+      max-width: 180px;
+      background: #11100f;
+      color: #fff5df;
+      border: 2px solid #fff5df;
+      border-radius: 999px;
+      padding: .45rem .65rem;
+      font-size: .65rem;
+      opacity: 0;
+      transition: .2s ease;
+      pointer-events: none;
+      text-align: center;
+    }
+    .symbol:hover::after { opacity: 1; transform: translateX(-50%) scale(1); }
+
+    section {
+      position: relative;
+      z-index: 4;
+      padding: clamp(5rem, 10vw, 9rem) clamp(1rem, 5vw, 4rem);
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding-top: 8rem;
+    }
+
+    .entry-reading {
+      min-height: 100vh;
+      height: auto;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 4.5rem clamp(1rem, 5vw, 4rem) 4rem;
+      overflow: visible;
+    }
+
+    .entry-shell {
+      width: min(1100px, 100%);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .entry-oracle {
+      width: min(460px, 100%);
+      margin: .65rem auto 1rem;
+      padding: 1.1rem;
+      overflow: visible;
+    }
+
+    .pre-card {
+      display: grid;
+      justify-items: center;
+      gap: 1.4rem;
+    }
+
+    .card-back {
+      width: min(100%, 320px);
+      min-height: 420px;
+      border: 4px solid #11100f;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 25% 20%, #ff7edb, transparent 32%),
+        radial-gradient(circle at 80% 35%, #62e3ff, transparent 28%),
+        radial-gradient(circle at 45% 82%, #ffe24d, transparent 35%),
+        #11100f;
+      color: #fff5df;
+      box-shadow: 14px 14px 0 #11100f, 0 0 70px rgba(255,126,219,.5);
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 1rem;
+      text-align: center;
+      font-weight: 950;
+      letter-spacing: .12em;
+      animation: floaty 4.5s ease-in-out infinite;
+    }
+
+    .card-back-symbol {
+      font-size: 5rem;
+      filter: drop-shadow(0 0 18px rgba(255,255,255,.7));
+    }
+
+    .locked-message {
+      font-family: Georgia, serif;
+      font-style: italic;
+      color: rgba(255,245,223,.85);
+      margin-top: .5rem;
+    }
+
+    .hidden { display: none !important; }
+
+    .enter-site { margin-top: 1.2rem; display: inline-block; }
+
+    .site-content.locked {
+      display: none;
+      opacity: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .site-content {
+      display: block;
+      opacity: 1;
+      transition: opacity .8s ease;
+    }
+
+    .screen {
+      min-height: 100vh;
+      display: grid;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(255,245,223,.12);
+      border: 2px solid rgba(255,245,223,.85);
+      border-radius: 999px;
+      padding: .5rem .85rem;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-size: .68rem;
+      font-weight: 900;
+      box-shadow: 0 0 30px rgba(255, 72, 207, .25);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      margin: .55rem auto .45rem;
+      max-width: 1050px;
+      font-size: clamp(3rem, 10vw, 8.8rem);
+      line-height: .86;
+      letter-spacing: -.08em;
+      text-transform: uppercase;
+      font-weight: 950;
+      animation: glitch 4s steps(2, jump-none) infinite;
+    }
+
+    .hero em {
+      display: inline-block;
+      font-family: Georgia, serif;
+      font-style: italic;
+      font-weight: 400;
+      letter-spacing: -.04em;
+      background: linear-gradient(90deg, #fff5df, #ff7edb, #ffe24d, #62e3ff, #fff5df);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      color: transparent;
+      animation: shimmer 5s linear infinite;
+    }
+
+    .subhead {
+      max-width: 620px;
+      margin: 0 auto 1.2rem;
+      font-size: clamp(.95rem, 1.4vw, 1.1rem);
+      line-height: 1.5;
+      color: rgba(255,245,223,.88);
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: .8rem;
+      margin-top: 2rem;
+    }
+
+    .button {
+      border: 3px solid #11100f;
+      background: #ffe24d;
+      color: #11100f;
+      border-radius: 999px;
+      padding: .85rem 1.15rem;
+      font-weight: 950;
+      text-transform: uppercase;
+      box-shadow: 7px 7px 0 #11100f;
+      transition: .18s ease;
+      cursor: pointer;
+    }
+    .button:hover { transform: translate(4px, 4px); box-shadow: 3px 3px 0 #11100f; }
+    .button.secondary { background: #ff7edb; }
+
+    .section-title {
+      max-width: 850px;
+      margin-bottom: 2rem;
+      font-size: clamp(2.4rem, 7vw, 5.8rem);
+      line-height: .9;
+      letter-spacing: -.06em;
+      text-transform: uppercase;
+    }
+
+    .reading-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: clamp(2rem, 5vw, 5rem);
+      align-items: center;
+    }
+
+    .oracle-panel {
+      background: rgba(255,245,223,.13);
+      border: 3px solid #fff5df;
+      border-radius: 36px;
+      padding: clamp(1rem, 3vw, 2rem);
+      box-shadow: 0 0 50px rgba(0,0,0,.35), inset 0 0 50px rgba(255,255,255,.05);
+      backdrop-filter: blur(12px);
+    }
+
+    .card-stage {
+      min-height: 580px;
+      display: grid;
+      place-items: center;
+      perspective: 1200px;
+      overflow: visible;
+      padding-bottom: 1.25rem;
+    }
+
+    .brand-card {
+      width: min(100%, 360px);
+      min-height: auto;
+      border: 4px solid #11100f;
+      border-radius: 28px;
+      background: #fff5df;
+      color: #11100f;
+      box-shadow: 14px 14px 0 #11100f, 0 0 70px rgba(255,126,219,.5);
+      padding: 1rem;
+      transform-style: preserve-3d;
+      animation: cardIn .7s ease both;
+    }
+    @keyframes cardIn {
+      from { transform: rotateY(80deg) scale(.82); opacity: 0; }
+      to { transform: rotateY(0deg) scale(1); opacity: 1; }
+    }
+
+    .card-art {
+      height: 190px;
+      border: 3px solid #11100f;
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      font-size: 4.8rem;
+      background:
+        radial-gradient(circle at 25% 25%, #ff7edb, transparent 34%),
+        radial-gradient(circle at 75% 35%, #62e3ff, transparent 30%),
+        radial-gradient(circle at 45% 80%, #ffe24d, transparent 36%),
+        #ff6b21;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    .card-art span { animation: floaty 4s ease-in-out infinite; }
+
+    .card-label {
+      font-family: Georgia, serif;
+      text-align: center;
+      font-size: 2rem;
+      letter-spacing: -.04em;
+      text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+
+    .card-line {
+      font-weight: 950;
+      font-size: .95rem;
+      line-height: 1.15;
+      text-align: center;
+      margin-bottom: .6rem;
+    }
+
+    .card-copy {
+      font-size: .82rem;
+      line-height: 1.32;
+      display: grid;
+      gap: .45rem;
+      text-align: center;
+    }
+    .card-copy b { text-transform: uppercase; font-size: .72rem; letter-spacing: .1em; }
+
+    .entry-oracle .brand-card {
+      width: min(100%, 360px);
+      min-height: auto;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 10px 10px 0 #11100f, 0 0 55px rgba(255,126,219,.45);
+    }
+
+    .entry-oracle .card-art {
+      height: 190px;
+      font-size: 4.8rem;
+      margin-bottom: .7rem;
+      border-radius: 18px;
+    }
+
+    .entry-oracle .card-label {
+      font-size: 2rem;
+      margin-bottom: .45rem;
+    }
+
+    .entry-oracle .card-line {
+      font-size: 1.05rem;
+      margin-bottom: .6rem;
+      line-height: 1.18;
+    }
+
+    .entry-oracle .card-copy {
+      font-size: .82rem;
+      line-height: 1.32;
+      gap: .45rem;
+      text-align: center;
+    }
+
+    .entry-oracle .card-copy b {
+      font-size: .72rem;
+    }
+
+    .loading-text {
+      text-align: center;
+      font-family: Georgia, serif;
+      font-style: italic;
+      font-size: 1.4rem;
+      color: #fff5df;
+      animation: glitch 1s steps(2) infinite;
+    }
+
+    .manifesto {
+      background: rgba(17,16,15,.55);
+    }
+
+    .manifesto-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .poster, .world, .offer-card, .form-card {
+      border: 3px solid #11100f;
+      background: #fff5df;
+      color: #11100f;
+      border-radius: 30px;
+      padding: clamp(1.2rem, 3vw, 2rem);
+      box-shadow: 9px 9px 0 #11100f;
+    }
+
+    .poster:nth-child(2) { background: #ff7edb; transform: rotate(1.5deg); }
+    .poster:nth-child(3) { background: #62e3ff; transform: rotate(-1deg); }
+
+    .poster h3, .world h3 {
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      line-height: .9;
+      text-transform: uppercase;
+      letter-spacing: -.05em;
+      margin-bottom: 1rem;
+    }
+
+    .poster p, .world p, .offer-card p, .form-card p {
+      line-height: 1.45;
+      font-size: 1rem;
+    }
+
+    .world-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .world { transition: .2s ease; min-height: 270px; position: relative; overflow: hidden; }
+    .world::before {
+      content: attr(data-tag);
+      display: inline-block;
+      background: #11100f;
+      color: #fff5df;
+      border-radius: 999px;
+      padding: .4rem .65rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: .7rem;
+      margin-bottom: 1rem;
+    }
+    .world:hover { transform: translateY(-10px) rotate(-1deg); box-shadow: 14px 18px 0 #11100f; }
+
+    .offer-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .price {
+      font-size: clamp(4rem, 10vw, 8rem);
+      line-height: .85;
+      letter-spacing: -.08em;
+      font-weight: 950;
+      margin: 1rem 0;
+    }
+
+    .deliverables {
+      display: grid;
+      gap: .6rem;
+      margin-top: 1.3rem;
+    }
+    .deliverables div {
+      border: 2px solid #11100f;
+      border-radius: 999px;
+      padding: .65rem .9rem;
+      font-weight: 800;
+      background: rgba(255,255,255,.35);
+    }
+
+    .initiation {
+      padding-bottom: 8rem;
+    }
+
+    form {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    label {
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .75rem;
+    }
+    input, textarea {
+      width: 100%;
+      border: 3px solid #11100f;
+      border-radius: 18px;
+      padding: .9rem;
+      background: #fff8e9;
+      color: #11100f;
+      outline: none;
+      margin-top: .35rem;
+    }
+    textarea { min-height: 100px; resize: vertical; }
+    input:focus, textarea:focus { box-shadow: 0 0 0 4px #ff7edb; }
+
+    .secret-button {
+      position: fixed;
+      bottom: 1rem;
+      left: 1rem;
+      z-index: 30;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 3px solid #11100f;
+      background: #ff7edb;
+      box-shadow: 5px 5px 0 #11100f;
+      cursor: pointer;
+      font-size: 1.4rem;
+    }
+
+    .secret-note {
+      position: fixed;
+      bottom: 5rem;
+      left: 1rem;
+      z-index: 30;
+      max-width: 280px;
+      background: #11100f;
+      color: #fff5df;
+      border: 2px solid #fff5df;
+      border-radius: 20px;
+      padding: 1rem;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: .2s ease;
+    }
+    .secret-note.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 900px) {
+      .reading-wrap, .manifesto-grid, .world-grid, .offer-layout { grid-template-columns: 1fr; }
+      .card-stage { min-height: auto; margin-top: 1rem; }
+      .brand-card { min-height: auto; }
+      .symbols { display: none; }
+      .entry-reading { height: auto; min-height: 100vh; overflow: visible; }
+      .entry-oracle { width: min(390px, 100%); }
+      .card-back { min-height: 300px; }
+      .entry-reading h1 { font-size: clamp(2.4rem, 14vw, 4.8rem); }
+    }
+
+    @media (max-height: 760px) {
+      .entry-reading h1 { font-size: clamp(2.2rem, 6vw, 4.7rem); }
+      .entry-oracle { width: min(360px, 100%); }
+      .card-back {
+        min-height: 270px;
+        width: min(100%, 240px);
+      }
+      .card-stage {
+        min-height: 390px;
+        padding-bottom: 1rem;
+      }
+      .entry-oracle .brand-card {
+        width: min(100%, 270px);
+        padding: .7rem;
+      }
+      .entry-oracle .card-art { height: 95px; font-size: 2.4rem; margin-bottom: .45rem; }
+      .entry-oracle .card-label { font-size: 1.18rem; margin-bottom: .3rem; }
+      .entry-oracle .card-line { font-size: .74rem; margin-bottom: .35rem; }
+      .entry-oracle .card-copy { font-size: .64rem; gap: .22rem; line-height: 1.18; }
+      .entry-oracle .card-copy b { font-size: .52rem; }
+      .subhead { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="portal-bg"></div>
+
+  <div class="ticker">
+    <span> CULT BRAND BUILDER ✦ EMOTIONAL STRATEGY DISGUISED AS MYSTICISM ✦ YOUR AUDIENCE ALREADY KNOWS ✦ THE BRAND ORACLE ✦ BUILD THE MYTH ✦ CULT BRAND BUILDER ✦ EMOTIONAL STRATEGY DISGUISED AS MYSTICISM ✦ YOUR AUDIENCE ALREADY KNOWS ✦ THE BRAND ORACLE ✦ BUILD THE MYTH ✦ </span>
+  </div>
+
+  <div class="symbols" aria-hidden="true">
+    <div class="symbol" data-secret="your audience already knows">👁️</div>
+    <div class="symbol" data-secret="make the feeling repeatable">✦</div>
+    <div class="symbol" data-secret="the product is the portal">🌀</div>
+    <div class="symbol" data-secret="ritual beats content">🔥</div>
+    <div class="symbol" data-secret="obsession is a climate">☾</div>
+  </div>
+
+  <section class="entry-reading" id="reading">
+    <div class="entry-shell">
+      <div class="badge">cult brand builder presents</div>
+      <h1><em>The Brand Oracle</em></h1>
+      <p class="subhead">Receive your symbolic brand diagnosis before entering the portal.</p>
+
+      <div class="oracle-panel entry-oracle">
+        <div class="card-stage" id="cardStage">
+          <div class="pre-card">
+            <div class="card-back">
+              <div class="card-back-symbol">👁️</div>
+              <p>CULT BRAND<br>READING</p>
+            </div>
+            <button class="button" id="pullCard">Pull Your Brand Card</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="locked-message" id="lockedMessage">The rest of the portal unlocks after your first card.</div>
+      <a class="button enter-site hidden" id="enterSite" href="#hero">Enter the Portal</a>
+    </div>
+  </section>
+
+  <main id="siteContent" class="site-content locked">
+    <section class="hero screen" id="hero">
+      <div>
+        <div class="badge">internet occult portal for brands</div>
+        <h1>Most brands don’t need more marketing. <em>They need mythology.</em></h1>
+        <p class="subhead">Cult Brand Builder is a tarot-inspired brand reading for founders who want to decode the emotional world, symbols, contradictions, audience obsession, and cult potential hiding inside their brand.</p>
+        <div class="cta-row">
+          <a class="button" href="#offer">Book the Read</a>
+          <a class="button secondary" href="#manifesto">Read the Manifesto</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="manifesto screen" id="manifesto">
+      <div class="badge">the problem</div>
+      <h2 class="section-title">Where’s your cult?</h2>
+      <div class="manifesto-grid">
+        <div class="poster">
+          <h3>Everyone wants viral.</h3>
+          <p>The internet is full of brands trying to go viral. Very few are building worlds people actually want to return to.</p>
+        </div>
+        <div class="poster">
+          <h3>Attention is collapsing.</h3>
+          <p>In 2026, people are craving the real and the remarkable. Keeping a customer’s attention is harder than ever.</p>
+        </div>
+        <div class="poster">
+          <h3>Only worlds survive.</h3>
+          <p>The brands that survive will not just sell products. They will build emotional worlds, rituals, symbols, and experiences people willingly return to.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="worlds">
+      <div class="badge">about the brand oracle</div>
+      <h2 class="section-title">A decade of building unforgettable brands.</h2>
+
+      <div class="offer-layout" style="align-items:center; gap:2rem;">
+        <div class="oracle-panel" style="padding:2rem; text-align:center; background:rgba(255,245,223,.16);">
+          <div style="width:min(100%,320px); aspect-ratio:1/1; margin:0 auto 1.5rem; border:4px solid #fff5df; border-radius:30px; overflow:hidden; background:linear-gradient(135deg,#ff7edb,#ffe24d,#62e3ff); display:grid; place-items:center; font-size:6rem; box-shadow:0 0 45px rgba(255,126,219,.4);">
+            ✶
+          </div>
+          <p style="font-family:Georgia,serif; font-style:italic; color:#fff5df; opacity:.9;">insert cartoon oracle portrait here</p>
+        </div>
+
+        <div class="offer-card">
+          <h3 style="margin-bottom:1.2rem;">THE BRAND ORACLE</h3>
+
+          <p style="font-size:1.08rem; line-height:1.7; margin-bottom:1.2rem;">
+            For over a decade, I’ve helped brands uncover the emotional identity hiding underneath the surface.
+          </p>
+
+          <p style="font-size:1.08rem; line-height:1.7; margin-bottom:1.2rem;">
+            My work sits at the intersection of storytelling, atmosphere, internet culture, participation, and emotional branding.
+          </p>
+
+          <p style="font-size:1.08rem; line-height:1.7; margin-bottom:1.5rem;">
+            I help brands find the thing that makes people remember them — not just visually, but emotionally.
+          </p>
+
+          <div class="deliverables" style="margin-top:0;">
+            <div>The State of Washington</div>
+            <div>APGA</div>
+            <div>Pooka Pure and Simple</div>
+          </div>
+
+          <p style="margin-top:1.5rem; font-weight:700; line-height:1.6;">
+            Not branding for attention.<br>
+            Branding for attachment.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="offer">
+      <div class="offer-layout">
+        <div>
+          <div class="badge">the offer</div>
+          <h2 class="section-title">Cult Brand Reading</h2>
+          <p class="subhead" style="margin-left:0; margin-bottom:1.5rem;">This is not a brand audit. This is a reading.</p>
+
+          <div class="oracle-panel" style="background:rgba(255,245,223,.08); border-color:rgba(255,245,223,.7);">
+            <p style="font-size:1.05rem; line-height:1.7; font-weight:700; margin-bottom:1rem; color:#fff5df;">
+              What you get:
+            </p>
+
+            <p style="line-height:1.8; font-size:1rem; color:#fff5df; margin-bottom:1.2rem;">
+              Delivered as a visually immersive PDF strategy artifact within 3 days.
+            </p>
+
+            <p style="line-height:1.8; font-size:1rem; color:#fff5df;">
+              You’ll receive a designed diagnosis deck combining emotional strategy, audience psychology, symbolic positioning, and immersive activation concepts.
+            </p>
+          </div>
+        </div>
+        <div class="offer-card">
+          <h3>CULT BRAND READING</h3>
+          <div class="price">€333</div>
+          <p style="font-size:1.15rem;font-weight:800;margin-bottom:1rem;">For founders who want to become unforgettable.</p>
+
+          <p style="margin-bottom:1.2rem; font-size:1.05rem; line-height:1.5;">
+            A brand audit that tells you three things in three days:
+          </p>
+
+          <div class="deliverables">
+            <div>what emotional identity your brand is actually selling</div>
+            <div>what cult potential you're currently missing</div>
+            <div>one signature activation idea to start building cultural obsession</div>
+          </div>
+
+          
+
+          <div class="cta-row" style="justify-content:flex-start;">
+            <a class="button" href="#initiation">Request Initiation</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="initiation screen" id="initiation">
+      <div class="form-card">
+        <div class="badge" style="background:#11100f;color:#fff5df;">initiation form</div>
+        <h2 class="section-title" style="color:#11100f; margin-top:1rem;">Send the Signal.</h2>
+        <p>This is the first door. Answer strangely. Answer honestly. The useful material is usually hiding in the weirdest sentence.</p>
+        <form id="oracleForm">
+          <input type="hidden" name="accessKey" value="sf_0e18962fcf04b63b2818e120">
+          <input type="hidden" name="subject" value="New Cult Brand Reading Submission">
+          <input type="hidden" name="replyTo" value="@">
+          <input type="hidden" name="redirectTo" value="https://buy.stripe.com/">
+
+          <div>
+            <label>Name<input type="text" name="name" placeholder="your internet name" /></label>
+          </div>
+          <div>
+            <label>Brand name<input type="text" name="brand" placeholder="the thing we are summoning" /></label>
+          </div>
+          <div>
+            <label>Website<input type="text" name="website" placeholder="your website" /></label>
+          </div>
+          <div>
+            <label>Social Media Links<input type="text" name="socials" placeholder="instagram, tiktok, linkedin, etc" /></label>
+          </div>
+          <div>
+            <label>Email<input type="email" name="email" placeholder="you@yourworld.com" /></label>
+          </div>
+          <div>
+            <label>How would you describe what you do in 2-3 sentences — not your resume, but how you'd tell a stranger at a party?<textarea name="partyintro"></textarea></label>
+          </div>
+          <div>
+            <label>What are the 3 words you want people to associate with your brand?<textarea name="words"></textarea></label>
+          </div>
+          <div>
+            <label>What makes your brand different from other brands doing similar things?<textarea name="difference"></textarea></label>
+          </div>
+          <div>
+            <label>Who is your target audience?<textarea name="audience"></textarea></label>
+          </div>
+          <div>
+            <label>Where do you feel most stuck or unclear right now?<textarea name="stuck"></textarea></label>
+          </div>
+          <div>
+            <label>What marketing methods have you tried and which have worked the best?<textarea name="marketing"></textarea></label>
+          </div>
+          <button class="button" type="submit">Submit for a Reading</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <button class="secret-button" id="secretButton" aria-label="secret">?</button>
+  <div class="secret-note" id="secretNote">Secret note: the brand is not what you say it is. It is what people feel invited to become.</div>
+
+  <script>
+    const cards = [
+      {
+        title: 'THE OBSESSION', icon: '🫦',
+        line: 'You are not selling a product. You are feeding a fixation.',
+        insight: 'Your brand becomes powerful when people see themselves inside the desire it creates.',
+        cult: 'High, if the audience can repeat the feeling without you explaining it.',
+        prompt: 'What do people secretly want to become when they buy from you?'
+      },
+      {
+        title: 'THE SIGNAL', icon: '📡',
+        line: 'Something is already broadcasting. Tune it before you amplify it.',
+        insight: 'Your strongest message may be buried inside a detail you keep treating as secondary.',
+        cult: 'Medium-high, if the signal becomes instantly recognizable.',
+        prompt: 'What phrase, color, ritual, or object keeps following your brand around?'
+      },
+      {
+        title: 'THE WORLD', icon: '🌍',
+        line: 'A brand is not a page. It is a place people can return to.',
+        insight: 'Your audience wants an environment, not only an explanation.',
+        cult: 'High, if you design rituals of return.',
+        prompt: 'What does someone do after they enter your world?'
+      },
+      {
+        title: 'THE PARTICIPANT', icon: '🎟️',
+        line: 'Your audience does not want to watch forever. They want a role.',
+        insight: 'Participation creates attachment faster than passive admiration.',
+        cult: 'Very high, if people can perform belonging publicly.',
+        prompt: 'How can your audience show they are inside the world?'
+      },
+      {
+        title: 'THE GLITCH', icon: '🕳️',
+        line: 'The contradiction is not the problem. It is the portal.',
+        insight: 'The strange tension in your brand may be the thing that makes it memorable.',
+        cult: 'High, if you stop smoothing out the weirdness.',
+        prompt: 'What part of the brand feels wrong but magnetic?'
+      },
+      {
+        title: 'THE MYTH', icon: '🐚',
+        line: 'Facts tell. Myth recruits.',
+        insight: 'Your origin story needs symbolic charge, not more chronology.',
+        cult: 'Medium-high, if the story gives people a reason to repeat it.',
+        prompt: 'What is the legend version of why this brand exists?'
+      },
+      {
+        title: 'THE LURKER', icon: '👀',
+        line: 'Some people are already watching. Give them a doorway.',
+        insight: 'Your quiet audience needs a low-risk invitation before they become visible.',
+        cult: 'Medium, rising quickly with the right ritual of entry.',
+        prompt: 'What is the smallest action someone can take to belong?'
+      },
+      {
+        title: 'THE RABBIT HOLE', icon: '🐇',
+        line: 'The more they click, the more they should feel chosen.',
+        insight: 'Depth creates devotion when every layer rewards curiosity.',
+        cult: 'Very high, if the brand has hidden rooms.',
+        prompt: 'What secret would make someone want to keep exploring?'
+      },
+      {
+        title: 'THE ICON', icon: '💎',
+        line: 'An icon is a symbol that learned how to haunt people.',
+        insight: 'Your visual language needs one unforgettable anchor.',
+        cult: 'High, if the symbol becomes shorthand for the feeling.',
+        prompt: 'What object could represent the whole emotional universe?'
+      },
+      {
+        title: 'THE VOID', icon: '⚫',
+        line: 'The absence is speaking too.',
+        insight: 'What you refuse to say may be shaping the brand as much as what you announce.',
+        cult: 'Unstable but potent, if mystery is used intentionally.',
+        prompt: 'What are you hiding that the audience can already feel?'
+      }
+    ];
+
+    const loadingLines = [
+      'consulting the algorithmic spirits...',
+      'scanning your brand aura...',
+      'checking for emotional residue...',
+      'opening the internet portal...',
+      'summoning your symbolic contradiction...'
+    ];
+
+    const stage = document.getElementById('cardStage');
+    const button = document.getElementById('pullCard');
+    const siteContent = document.getElementById('siteContent');
+    const enterSite = document.getElementById('enterSite');
+    const lockedMessage = document.getElementById('lockedMessage');
+
+    function unlockSite() {
+      siteContent.classList.remove('locked');
+      enterSite.classList.remove('hidden');
+      lockedMessage.textContent = 'The portal is open. Your reading continues below.';
+    }
+
+    function pullCard() {
+      const loading = loadingLines[Math.floor(Math.random() * loadingLines.length)];
+      stage.innerHTML = `<div class="loading-text">${loading}</div>`;
+      setTimeout(() => {
+        const card = cards[Math.floor(Math.random() * cards.length)];
+        stage.innerHTML = `
+          <article class="brand-card">
+            <div class="card-art"><span>${card.icon}</span></div>
+            <h3 class="card-label">${card.title}</h3>
+            <p class="card-line">“${card.line}”</p>
+            <div class="card-copy">
+              <p><b>Insight</b><br>${card.insight}</p>
+              <p><b>Cult Potential</b><br>${card.cult}</p>
+              
+            </div>
+          </article>
+        `;
+        unlockSite();
+      }, 850);
+    }
+
+    button.addEventListener('click', pullCard);
+
+    enterSite.addEventListener('click', () => {
+      setTimeout(() => {
+        document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
+      }, 50);
+    });
+
+
+    const form = document.getElementById('oracleForm');
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const submitButton = form.querySelector('button[type="submit"]');
+      submitButton.innerText = 'Sending Signal...';
+      submitButton.disabled = true;
+
+      const formData = new FormData(form);
+      const object = Object.fromEntries(formData);
+      const json = JSON.stringify(object);
+
+      try {
+        const response = await fetch('https://api.staticforms.xyz/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: json
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          form.innerHTML = `
+            <div style="text-align:center; padding:2rem 1rem;">
+              <h3 style="font-size:2rem; margin-bottom:1rem; text-transform:uppercase;">Signal Received ✶</h3>
+              <p style="margin-bottom:1.5rem; line-height:1.7;">
+                Your application has entered the portal.<br>
+                Continue to payment to complete your Cult Brand Reading.
+              </p>
+              <a href="https://buy.stripe.com/" target="_blank" class="button">
+                Continue to Payment
+              </a>
+            </div>
+          `;
+        } else {
+          submitButton.innerText = 'Submit for a Reading';
+          submitButton.disabled = false;
+          alert('Something went wrong. Please try again.');
+        }
+      } catch (error) {
+        submitButton.innerText = 'Submit for a Reading';
+        submitButton.disabled = false;
+        alert('Something went wrong. Please try again.');
+      }
+    });
+
+    const secretButton = document.getElementById('secretButton');
+    const secretNote = document.getElementById('secretNote');
+    secretButton.addEventListener('click', () => {
+      secretNote.classList.toggle('show');
+    });
+  </script>
+</body>
+</html>
